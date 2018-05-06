@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!--<link rel="stylesheet" href="js/bootstrap/css/bootstrap.min.css">-->
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <link rel="stylesheet" href="css/index.css">
+    <!--<script src="js/bootstrap/js/bootstrap.min.js"></script>-->
+</head>
+<body>
+    <div class="left">
+    </div>
+    <div class="right">
+        <p class="state">退出</p>
+        <div id="and">
+            <p class="login">注册</p>
+            <div class="name">
+                用户名：<input type="text" id="userName">
+            </div>
+            <div class="hint">用户名提示</div>
+            <div class="passwork">
+                密码：<input type="text" id="userpassword">
+            </div>
+            <button id="login1">注册</button>
+            <p>登录</p>
+            <div class="name">
+                用户名：<input type="text" id="userName1" value="zhou">
+            </div>
+            <span>用户名提示</span>
+            <div class="passwork">
+                密码：<input type="text" id="userpassword1" value="zhoujin">
+            </div>
+            <button id="register">登录</button>
+        </div>
+
+        <p>发表留言</p>
+        <textarea id="msg"></textarea>
+        <button id="issue">发布</button>
+    </div>
+</body>
+<script>
+    var oUserName = document.getElementById('userName');
+    var oUserName1 = document.getElementById('userName1');
+    var oUserPassword = document.getElementById('userpassword');
+    var oUserPassword1 = document.getElementById('userpassword1');
+    var oHint = document.getElementsByClassName('hint')[0];
+    var oState = document.getElementsByClassName('state')[0];
+    var oLogin = document.getElementById('login1')
+    var oRegister = document.getElementById('register')
+    var oIssue = document.getElementById('issue')
+    var oMsg = document.getElementById('msg')
+    var oLeft = document.getElementsByClassName('left')[0]
+    var oRight = document.getElementsByClassName('right')[0]
+    var oAnd = document.getElementById('and')
+
+    //验证登录
+    oUserName.onblur=function () {
+        $.ajax({
+            methods: 'get',
+            url: 'guestbook/index.php?'+'m=index&a=verifyUserName'+'&username='+oUserName.value,
+            async: true,
+            dataType: 'json',
+            success: function (data) {
+                console.log(data)
+                oHint.innerHTML = data.message
+                if(data.code==0){
+                    oHint.style.color = "green";
+                }else if(data.code==1){
+                    oHint.style.color = 'red'
+                }else{
+                    oHint.style.color = 'origin'
+                }
+            }
+        })
+    }
+
+    //注册
+    oLogin.onclick=function () {
+        if(oUserPassword.value == ''){
+            alert('密码不能为空')
+        }else{
+            $.ajax({
+                mthods: 'post',
+                url:  'guestbook/index.php?m=index&a=reg&username=' + oUserName.value+'&password='+oUserPassword.value,
+                asyuc: true,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data)
+                    if(data.code == 0){
+                        oUserName.value = ''
+                        oUserPassword.value = ''
+                    }
+
+                }
+            })
+        }
+    }
+
+    //登录
+    oRegister.onclick=function () {
+        if(oUserName1.value == ''&&oUserPassword1.value == ''){
+            alert('不能为空')
+        }else{
+            $.ajax({
+                mthods: 'post',
+                url:  'guestbook/index.php?m=index&a=login&username=' + oUserName1.value+'&password='+oUserPassword1.value,
+                asyuc: true,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data)
+                    if (data.code == 0 || data.code ==1){
+                        var lo = document.createElement('p')
+                        lo.innerHTML = '当前登录的用户：' + oUserName1.value
+                        oRight.prepend(lo)
+                        oAnd.style.display = 'none'
+                    }
+                }
+            })
+        }
+    }
+
+    //退出登录
+    oState.onclick=function () {
+        $.ajax({
+            mthods: 'post',
+            url: 'guestbook/index.php?m=index&a=logout',
+            asyuc: true,
+            dataType: 'json',
+            success: function (data) {
+                console.log(data)
+                if (data.code == 0){
+                    alert(data.message)
+                    oAnd.style.display = 'block';
+                    lo.innerHTML= ''
+                }
+            }
+        })
+    }
+
+    //添加留言
+    oIssue.onclick=function () {
+        console.log(oMsg.value)
+        var con = oMsg.value
+        $.ajax({
+            method: 'post',
+            url: 'guestbook/index.php?m=index&a=send',
+            data: {
+                content:oMsg.value
+            },
+            async:true,
+            dataType: 'json',
+            success: function (data) {
+                console.log(data)
+                if (data.code == 0){
+                    aa();
+                }
+            }
+        })
+    }
+
+
+    //获取留言
+    var aa = function () {
+        $.ajax({
+            mthods: 'get',
+            url: 'guestbook/index.php?m=index&a=getList&page=1&n=2',
+            asyuc: true,
+            dataType: 'json',
+            success: function (data) {
+                console.log(data)
+                if(data.code == 1){
+                    var oli = document.createElement('p');
+                    oli.innerHTML = '暂无留言'
+                    oli.style.lineHeight = '500px'
+                    oli.style.textAlign = 'center'
+                    oLeft.appendChild(oli);
+                }else{
+                    oLeft.innerHTML = ''
+                    var olio = data.data.list
+                    for (i=0;i<olio.length;i++){
+                        // console.log(olio[i].username)
+                        //创建li
+                        var oli = document.createElement('li')
+                        oLeft.appendChild(oli);
+                        var p1= document.createElement('p');
+                        p1.innerHTML = olio[i].username+'<b>说</b>'
+                        var p2= document.createElement('p');
+                        p2.innerHTML = olio[i].content
+                        oli.appendChild(p1)
+                        oli.appendChild(p2)
+                    }
+                }
+            }
+        })
+    }
+    aa()
+
+    window.onload=function () {
+        oRegister.onclick()
+    }
+</script>
+</html>

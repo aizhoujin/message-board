@@ -1,0 +1,30 @@
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none; }
+
+.left {
+  width: 500px;
+  border: 1px solid red;
+  float: left;
+  min-height: 500px;
+  margin-right: 5px; }
+  .left li {
+    width: 90%;
+    margin: 5px auto;
+    height: 60px;
+    margin-bottom: 5px;
+    border: 1px solid #888888; }
+    .left li p {
+      line-height: 18px; }
+
+.right {
+  float: left;
+  width: 200px;
+  border: 1px solid aqua;
+  padding: 5px; }
+  .right p {
+    background: #888888;
+    margin: 5px 0; }
+
+/*# sourceMappingURL=index.css.map */
